@@ -1,17 +1,28 @@
-# responsi_flutter
+# Responsi Flutter
 
-A new Flutter project.
+Aplikasi cuaca Android berbasis Flutter menggunakan Open-Meteo. Saat ini proyek masih menampilkan aplikasi bawaan Flutter; fitur cuaca belum diimplementasikan.
 
-## Getting Started
+## Menjalankan proyek
 
-This project is a starting point for a Flutter application.
+```sh
+flutter pub get
+flutter run
+```
 
-A few resources to get you started if this is your first Flutter project:
+Pilih perangkat Android atau emulator saat menjalankan aplikasi.
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+## Rancangan arsitektur MVVM
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Kode fitur dipisahkan berdasarkan tanggung jawab berikut:
+
+- `lib/models/`: model lokasi dan cuaca serta parsing JSON. Model lokasi juga dapat diserialisasi untuk penyimpanan lokal.
+- `lib/views/`: screen dan widget untuk menampilkan state dan menerima interaksi pengguna.
+- `lib/viewmodels/`: state dan logika presentasi untuk pencarian lokasi, cuaca, dan favorit. View mengamati perubahan melalui Provider.
+- `lib/services/`: request HTTP ke Open-Meteo dan penyimpanan favorit dengan SharedPreferences.
+
+View memanggil ViewModel; ViewModel menggunakan service untuk mengambil atau menyimpan data dan menyediakan model serta state kepada View. Model sudah diimplementasikan; View, ViewModel, dan service cuaca akan dibuat pada langkah berikutnya.
+
+## Sumber data
+
+- [Open-Meteo Geocoding API](https://open-meteo.com/en/docs/geocoding-api) untuk pencarian lokasi.
+- [Open-Meteo Weather Forecast API](https://open-meteo.com/en/docs) untuk data cuaca.
