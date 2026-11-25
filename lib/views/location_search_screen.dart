@@ -52,72 +52,81 @@ class _SearchViewState extends State<_SearchView> {
     return Scaffold(
       appBar: AppBar(title: const Text('Cari lokasi')),
       body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            TextField(
-              controller: _controller,
-              textInputAction: TextInputAction.search,
-              onSubmitted: (_) => _search(),
-              decoration: InputDecoration(
-                labelText: 'Nama kota',
-                border: const OutlineInputBorder(),
-                suffixIcon: IconButton(
-                  tooltip: 'Cari',
-                  onPressed: _search,
-                  icon: const Icon(Icons.search),
+        child: LayoutBuilder(
+          builder: (context, constraints) => ListView(
+            padding: EdgeInsets.symmetric(
+              horizontal: constraints.maxWidth > 680
+                  ? (constraints.maxWidth - 648) / 2
+                  : 16,
+              vertical: 16,
+            ),
+            children: [
+              TextField(
+                controller: _controller,
+                textInputAction: TextInputAction.search,
+                onSubmitted: (_) => _search(),
+                decoration: InputDecoration(
+                  labelText: 'Nama kota',
+                  border: const OutlineInputBorder(),
+                  suffixIcon: IconButton(
+                    tooltip: 'Cari',
+                    onPressed: _search,
+                    icon: const Icon(Icons.search),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 24),
-            Text('Favorit', style: Theme.of(context).textTheme.titleLarge),
-            if (favorites.loading)
-              const Center(child: CircularProgressIndicator())
-            else if (favorites.hasError)
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 12),
-                child: Text('Tidak dapat membaca atau menyimpan favorit.'),
-              )
-            else if (favorites.locations.isEmpty)
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 12),
-                child: Text('Belum ada lokasi favorit.'),
-              )
-            else
-              ...favorites.locations.map(
-                (location) => _locationTile(location, favorites),
+              const SizedBox(height: 24),
+              Text('Favorit', style: Theme.of(context).textTheme.titleLarge),
+              if (favorites.loading)
+                const Center(child: CircularProgressIndicator())
+              else if (favorites.hasError)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 12),
+                  child: Text('Tidak dapat membaca atau menyimpan favorit.'),
+                )
+              else if (favorites.locations.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 12),
+                  child: Text('Belum ada lokasi favorit.'),
+                )
+              else
+                ...favorites.locations.map(
+                  (location) => _locationTile(location, favorites),
+                ),
+              const SizedBox(height: 24),
+              Text(
+                'Hasil pencarian',
+                style: Theme.of(context).textTheme.titleLarge,
               ),
-            const SizedBox(height: 24),
-            Text(
-              'Hasil pencarian',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 12),
-            switch (search.status) {
-              SearchStatus.initial => const Text(
-                'Masukkan nama kota untuk mencari.',
-              ),
-              SearchStatus.loading => const Center(
-                child: CircularProgressIndicator(),
-              ),
-              SearchStatus.empty => const Text('Lokasi tidak ditemukan.'),
-              SearchStatus.error => Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('Pencarian gagal. Periksa koneksi dan coba lagi.'),
-                  TextButton(
-                    onPressed: _search,
-                    child: const Text('Coba lagi'),
-                  ),
-                ],
-              ),
-              SearchStatus.success => Column(
-                children: search.locations
-                    .map((location) => _locationTile(location, favorites))
-                    .toList(),
-              ),
-            },
-          ],
+              const SizedBox(height: 12),
+              switch (search.status) {
+                SearchStatus.initial => const Text(
+                  'Masukkan nama kota untuk mencari.',
+                ),
+                SearchStatus.loading => const Center(
+                  child: CircularProgressIndicator(),
+                ),
+                SearchStatus.empty => const Text('Lokasi tidak ditemukan.'),
+                SearchStatus.error => Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Pencarian gagal. Periksa koneksi dan coba lagi.',
+                    ),
+                    TextButton(
+                      onPressed: _search,
+                      child: const Text('Coba lagi'),
+                    ),
+                  ],
+                ),
+                SearchStatus.success => Column(
+                  children: search.locations
+                      .map((location) => _locationTile(location, favorites))
+                      .toList(),
+                ),
+              },
+            ],
+          ),
         ),
       ),
     );
@@ -129,14 +138,18 @@ class _SearchViewState extends State<_SearchView> {
       location.country,
     ].whereType<String>().where((value) => value.isNotEmpty).join(', ');
     final isFavorite = favorites.isFavorite(location);
-    return ListTile(
-      title: Text(location.name),
-      subtitle: details.isEmpty ? null : Text(details),
-      onTap: () => Navigator.of(context).pop(location),
-      trailing: IconButton(
-        tooltip: isFavorite ? 'Hapus favorit' : 'Tambah favorit',
-        onPressed: favorites.loading ? null : () => favorites.toggle(location),
-        icon: Icon(isFavorite ? Icons.favorite : Icons.favorite_border),
+    return Card(
+      child: ListTile(
+        title: Text(location.name),
+        subtitle: details.isEmpty ? null : Text(details),
+        onTap: () => Navigator.of(context).pop(location),
+        trailing: IconButton(
+          tooltip: isFavorite ? 'Hapus favorit' : 'Tambah favorit',
+          onPressed: favorites.loading
+              ? null
+              : () => favorites.toggle(location),
+          icon: Icon(isFavorite ? Icons.favorite : Icons.favorite_border),
+        ),
       ),
     );
   }
